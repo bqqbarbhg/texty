@@ -1,4 +1,7 @@
 #include <Windows.h>
+#include <string.h>
+
+char text_buffer[128] = "";
 
 void paint_window(HWND window)
 {
@@ -9,6 +12,7 @@ void paint_window(HWND window)
 	RECT area = paint.rcPaint;
 
 	FillRect(dc, &area, clear_brush);
+	TextOut(dc, 2, 2, text_buffer, (int)strlen(text_buffer));
 
 	EndPaint(window, &paint);
 
@@ -18,9 +22,16 @@ void paint_window(HWND window)
 LRESULT CALLBACK window_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg) {
+
 	case WM_PAINT:
 		paint_window(hwnd);
 		break;
+
+	case WM_KEYDOWN:
+		text_buffer[strlen(text_buffer)] = (char)wParam;
+		RedrawWindow(hwnd, NULL, NULL, RDW_INVALIDATE);
+		break;
+
 	}
 
 	return DefWindowProc(hwnd, msg, wParam, lParam);
