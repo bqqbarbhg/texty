@@ -1,8 +1,29 @@
 #include <Windows.h>
 
-LRESULT CALLBACK window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+void paint_window(HWND window)
 {
-	return DefWindowProc(hwnd, uMsg, wParam, lParam);
+	HBRUSH clear_brush = CreateSolidBrush(RGB(30, 30, 30));
+
+	PAINTSTRUCT paint;
+	HDC dc = BeginPaint(window, &paint);
+	RECT area = paint.rcPaint;
+
+	FillRect(dc, &area, clear_brush);
+
+	EndPaint(window, &paint);
+
+	DeleteObject(clear_brush);
+}
+
+LRESULT CALLBACK window_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	switch (msg) {
+	case WM_PAINT:
+		paint_window(hwnd);
+		break;
+	}
+
+	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
