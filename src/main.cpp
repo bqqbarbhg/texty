@@ -12,7 +12,21 @@ void paint_window(HWND window)
 	RECT area = paint.rcPaint;
 
 	FillRect(dc, &area, clear_brush);
-	TextOut(dc, 2, 2, text_buffer, (int)strlen(text_buffer));
+	size_t len = strlen(text_buffer);
+	int x = 2;
+	int y = 2;
+	for (size_t i = 0; i < len; i++) {
+		char c = text_buffer[i];
+		if (c == '\n') {
+			x = 2;
+			y += 14;
+		}
+		RECT rc = { 0, 0, 0, 0 };
+		char buf[2] = { c, 0 };
+		DrawText(dc, buf, 1, &rc, DT_CALCRECT);
+		TextOut(dc, x, y, buf, 1);
+		x += rc.right;
+	}
 
 	EndPaint(window, &paint);
 
@@ -28,7 +42,13 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_KEYDOWN:
-		text_buffer[strlen(text_buffer)] = (char)wParam;
+		if (wParam == VK_RETURN) {
+			text_buffer[strlen(text_buffer)] = '\n';
+		} else if (wParam == VK_BACK) {
+			text_buffer[strlen(text_buffer) - 1] = 0;
+		} else {
+			text_buffer[strlen(text_buffer)] = (char)wParam;
+		}
 		RedrawWindow(hwnd, NULL, NULL, RDW_INVALIDATE);
 		break;
 

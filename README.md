@@ -7,7 +7,7 @@ A text editor born from the frustrations of inconsistensies of Vim.
 
 - [x] Create window
 - [x] Writing text to the window
-- [ ] Backspace and newline
+- [x] Backspace and newline
 - [ ] Simple cursor
 - [ ] File loading
 - [ ] File saving
