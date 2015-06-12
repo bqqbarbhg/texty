@@ -3,6 +3,8 @@ Texty
 
 A text editor born from the frustrations of inconsistensies of Vim.
 
+![Screenshot](screenshot.png)
+
 ## Todo list:
 
 - [x] Create window
