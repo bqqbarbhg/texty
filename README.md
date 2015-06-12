@@ -8,7 +8,8 @@ A text editor born from the frustrations of inconsistensies of Vim.
 - [x] Create window
 - [x] Writing text to the window
 - [x] Backspace and newline
-- [ ] Simple cursor
+- [x] Simple cursor
+- [ ] Handle translating keys (shift)
 - [ ] File loading
 - [ ] File saving
 
