@@ -17,7 +17,7 @@ void paint_window(HWND window)
 	size_t len = strlen(text_buffer);
 	int x = 2;
 	int y = 2;
-    int cx = 2, cy = 2;
+	int cx = 2, cy = 2;
 	for (size_t i = 0; i < len; i++) {
 		char c = text_buffer[i];
 		if (c == '\n') {
@@ -29,14 +29,14 @@ void paint_window(HWND window)
 		DrawText(dc, buf, 1, &rc, DT_CALCRECT);
 		TextOut(dc, x, y, buf, 1);
 		x += rc.right;
-        if (i + 1 == cursor) {
-            cx = x;
-            cy = y;
-        }
+		if (i + 1 == cursor) {
+			cx = x;
+			cy = y;
+		}
 	}
 
-    RECT cursor_rect = { cx, cy, cx + 4, cy + 14 };
-    FillRect(dc, &cursor_rect,  cursor_brush);
+	RECT cursor_rect = { cx, cy, cx + 4, cy + 14 };
+	FillRect(dc, &cursor_rect,	cursor_brush);
 
 	EndPaint(window, &paint);
 
@@ -53,17 +53,17 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	case WM_KEYDOWN:
 		if (wParam == VK_RETURN) {
-            memmove(text_buffer + cursor + 1, text_buffer + cursor, strlen(text_buffer + cursor) + 1);
+			memmove(text_buffer + cursor + 1, text_buffer + cursor, strlen(text_buffer + cursor) + 1);
 			text_buffer[cursor++] = '\n';
 		} else if (wParam == VK_BACK) {
-            memmove(text_buffer + cursor - 1, text_buffer + cursor, strlen(text_buffer + cursor) + 1);
-            cursor--;
-        } else if (wParam == VK_LEFT) {
-            cursor--;
-        } else if (wParam == VK_RIGHT) {
-            cursor++;
+			memmove(text_buffer + cursor - 1, text_buffer + cursor, strlen(text_buffer + cursor) + 1);
+			cursor--;
+		} else if (wParam == VK_LEFT) {
+			cursor--;
+		} else if (wParam == VK_RIGHT) {
+			cursor++;
 		} else {
-            memmove(text_buffer + cursor + 1, text_buffer + cursor, strlen(text_buffer + cursor) + 1);
+			memmove(text_buffer + cursor + 1, text_buffer + cursor, strlen(text_buffer + cursor) + 1);
 			text_buffer[cursor++] = (char)wParam;
 		}
 		RedrawWindow(hwnd, NULL, NULL, RDW_INVALIDATE);
