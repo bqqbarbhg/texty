@@ -51,6 +51,13 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		paint_window(hwnd);
 		break;
 
+	case WM_CHAR:
+		if (wParam != VK_RETURN && wParam != VK_BACK && wParam != VK_LEFT && wParam != VK_RIGHT) {
+			memmove(text_buffer + cursor + 1, text_buffer + cursor, strlen(text_buffer + cursor) + 1);
+			text_buffer[cursor++] = (char)wParam;
+			RedrawWindow(hwnd, NULL, NULL, RDW_INVALIDATE);
+		}
+		break;
 	case WM_KEYDOWN:
 		if (wParam == VK_RETURN) {
 			memmove(text_buffer + cursor + 1, text_buffer + cursor, strlen(text_buffer + cursor) + 1);
@@ -62,9 +69,6 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			cursor--;
 		} else if (wParam == VK_RIGHT) {
 			cursor++;
-		} else {
-			memmove(text_buffer + cursor + 1, text_buffer + cursor, strlen(text_buffer + cursor) + 1);
-			text_buffer[cursor++] = (char)wParam;
 		}
 		RedrawWindow(hwnd, NULL, NULL, RDW_INVALIDATE);
 		break;

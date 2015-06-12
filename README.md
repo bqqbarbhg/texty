@@ -9,7 +9,7 @@ A text editor born from the frustrations of inconsistensies of Vim.
 - [x] Writing text to the window
 - [x] Backspace and newline
 - [x] Simple cursor
-- [ ] Handle translating keys (shift)
+- [x] Handle translating keys (shift)
 - [ ] File loading
 - [ ] File saving
 
