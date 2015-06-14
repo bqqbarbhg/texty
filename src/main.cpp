@@ -1,7 +1,8 @@
+#define UNICODE
 #include <Windows.h>
 #include <string.h>
 
-char text_buffer[128] = "";
+char text_buffer[10*1024*1024] = "";
 int cursor;
 
 void paint_window(HWND window)
@@ -26,8 +27,8 @@ void paint_window(HWND window)
 		}
 		RECT rc = { 0, 0, 0, 0 };
 		char buf[2] = { c, 0 };
-		DrawText(dc, buf, 1, &rc, DT_CALCRECT);
-		TextOut(dc, x, y, buf, 1);
+		DrawTextA(dc, buf, 1, &rc, DT_CALCRECT);
+		TextOutA(dc, x, y, buf, 1);
 		x += rc.right;
 		if (i + 1 == cursor) {
 			cx = x;
@@ -36,7 +37,7 @@ void paint_window(HWND window)
 	}
 
 	RECT cursor_rect = { cx, cy, cx + 4, cy + 14 };
-	FillRect(dc, &cursor_rect,	cursor_brush);
+	FillRect(dc, &cursor_rect, cursor_brush);
 
 	EndPaint(window, &paint);
 
@@ -83,7 +84,30 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	WNDCLASS wnd_class = { 0 };
 	wnd_class.lpfnWndProc = window_proc;
 	wnd_class.hInstance = hInstance;
-	wnd_class.lpszClassName = "TextyEdit";
+	wnd_class.lpszClassName = TEXT("TextyEdit");
+
+	int argc;
+	LPWSTR *argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+
+	if (argc > 1) {
+
+		HANDLE file = CreateFileW(argv[1],
+				GENERIC_READ,
+				FILE_SHARE_READ,
+				NULL,
+				OPEN_EXISTING,
+				0,
+				NULL);
+
+		DWORD num_read;
+		ReadFile(file, text_buffer, sizeof(text_buffer) - 1, &num_read, NULL);
+
+		text_buffer[num_read] = 0;
+
+		CloseHandle(file);
+	}
+
+	LocalFree(argv);
 
 	ATOM class_atom = RegisterClass(&wnd_class);
 	if (!class_atom) {
@@ -101,7 +125,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		| WS_THICKFRAME // Resizable window
 		;
 
-	HWND window = CreateWindowEx(ex_style, MAKEINTATOM(class_atom), "Texty", style,
+	HWND window = CreateWindowExW(ex_style, MAKEINTATOM(class_atom), TEXT("Texty"), style,
 			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
 			NULL, NULL, hInstance, NULL);
 
