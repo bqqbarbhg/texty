@@ -5,15 +5,24 @@
 wchar_t current_filename[MAX_PATH];
 char text_buffer[10*1024*1024] = "";
 int cursor;
+HFONT font = NULL;
 
 void paint_window(HWND window)
 {
 	HBRUSH clear_brush = CreateSolidBrush(RGB(30, 30, 30));
 	HBRUSH cursor_brush = CreateSolidBrush(RGB(255, 0, 0));
 
+	if (font == NULL) {
+		font = CreateFont(14, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET,
+			OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FF_MODERN,
+			TEXT("Consolas"));
+	}
+
 	PAINTSTRUCT paint;
 	HDC dc = BeginPaint(window, &paint);
 	RECT area = paint.rcPaint;
+
+	SelectObject(dc, font);
 
 	FillRect(dc, &area, clear_brush);
 	size_t len = strlen(text_buffer);
@@ -26,11 +35,15 @@ void paint_window(HWND window)
 			x = 2;
 			y += 14;
 		}
-		SIZE size;
-		char buf[2] = { c, 0 };
-		GetTextExtentPoint32A(dc, buf, 1, &size);
-		TextOutA(dc, x, y, buf, 1);
-		x += size.cx;
+
+		if (c != '\n') {
+			SIZE size;
+			char buf[2] = { c, 0 };
+			GetTextExtentPoint32A(dc, buf, 1, &size);
+			TextOutA(dc, x, y, buf, 1);
+			x += size.cx;
+		}
+
 		if (i + 1 == cursor) {
 			cx = x;
 			cy = y;

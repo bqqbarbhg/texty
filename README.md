@@ -7,7 +7,7 @@ A text editor born from the frustrations of inconsistensies of Vim.
 
 ## Todo list:
 
-- [ ] Font support
+- [x] Font support
 - [ ] 2D Cursor
 - [ ] Tab expanding (visual)
 - [ ] Abstracted keyboard input
