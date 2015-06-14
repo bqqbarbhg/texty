@@ -13,5 +13,5 @@ A text editor born from the frustrations of inconsistensies of Vim.
 - [x] Simple cursor
 - [x] Handle translating keys (shift)
 - [x] File loading
-- [ ] File saving
+- [x] File saving
 

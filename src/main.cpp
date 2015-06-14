@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include <string.h>
 
+wchar_t current_filename[MAX_PATH];
 char text_buffer[10*1024*1024] = "";
 int cursor;
 
@@ -53,12 +54,15 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_CHAR:
+
 		if (wParam != VK_RETURN && wParam != VK_BACK && wParam != VK_LEFT && wParam != VK_RIGHT) {
 			memmove(text_buffer + cursor + 1, text_buffer + cursor, strlen(text_buffer + cursor) + 1);
 			text_buffer[cursor++] = (char)wParam;
 			RedrawWindow(hwnd, NULL, NULL, RDW_INVALIDATE);
 		}
+
 		break;
+
 	case WM_KEYDOWN:
 		if (wParam == VK_RETURN) {
 			memmove(text_buffer + cursor + 1, text_buffer + cursor, strlen(text_buffer + cursor) + 1);
@@ -70,6 +74,20 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			cursor--;
 		} else if (wParam == VK_RIGHT) {
 			cursor++;
+		} else if (wParam == VK_F5) {
+			HANDLE file = CreateFileW(current_filename,
+					GENERIC_WRITE,
+					FILE_SHARE_WRITE,
+					NULL,
+					OPEN_ALWAYS,
+					0,
+					NULL);
+
+			if (file != INVALID_HANDLE_VALUE) {
+				DWORD num_written;
+				WriteFile(file, text_buffer, (DWORD)strlen(text_buffer), &num_written, NULL);
+				CloseHandle(file);
+			}
 		}
 		RedrawWindow(hwnd, NULL, NULL, RDW_INVALIDATE);
 		break;
@@ -91,6 +109,8 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	if (argc > 1) {
 
+		wcscpy(current_filename, argv[1]);
+
 		HANDLE file = CreateFileW(argv[1],
 				GENERIC_READ,
 				FILE_SHARE_READ,
@@ -99,12 +119,14 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 				0,
 				NULL);
 
-		DWORD num_read;
-		ReadFile(file, text_buffer, sizeof(text_buffer) - 1, &num_read, NULL);
+		if (file != INVALID_HANDLE_VALUE) {
 
-		text_buffer[num_read] = 0;
+			DWORD num_read;
+			ReadFile(file, text_buffer, sizeof(text_buffer) - 1, &num_read, NULL);
+			text_buffer[num_read] = 0;
 
-		CloseHandle(file);
+			CloseHandle(file);
+		}
 	}
 
 	LocalFree(argv);
