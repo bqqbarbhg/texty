@@ -26,11 +26,11 @@ void paint_window(HWND window)
 			x = 2;
 			y += 14;
 		}
-		RECT rc = { 0, 0, 0, 0 };
+		SIZE size;
 		char buf[2] = { c, 0 };
-		DrawTextA(dc, buf, 1, &rc, DT_CALCRECT);
+		GetTextExtentPoint32A(dc, buf, 1, &size);
 		TextOutA(dc, x, y, buf, 1);
-		x += rc.right;
+		x += size.cx;
 		if (i + 1 == cursor) {
 			cx = x;
 			cy = y;
