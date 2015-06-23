@@ -7,6 +7,41 @@ char text_buffer[10*1024*1024] = "";
 int cursor;
 HFONT font = NULL;
 
+struct Line {
+	char *start;
+	char *end;
+};
+
+char *find_line_end(char *c) {
+	while (*c != '\0' && *c != '\n')
+		c++;
+	return c;
+}
+
+Line next_line(Line line) {
+	if (*line.end == '\0') {
+		Line null_line = { 0 };
+		return null_line;
+	}
+	line.start = line.end + 1;
+	line.end = find_line_end(line.start);
+	return line;
+}
+
+Line find_line(int row) {
+	Line line = { text_buffer, find_line_end(text_buffer) };
+
+	for (int i = 0; i < row; i++) {
+		line = next_line(line);
+	}
+
+	return line;
+}
+
+bool valid_line(Line line) {
+	return line.start && line.end;
+}
+
 void paint_window(HWND window)
 {
 	HBRUSH clear_brush = CreateSolidBrush(RGB(30, 30, 30));
@@ -25,18 +60,27 @@ void paint_window(HWND window)
 	SelectObject(dc, font);
 
 	FillRect(dc, &area, clear_brush);
-	size_t len = strlen(text_buffer);
-	int x = 2;
+
+	int cx = -1, cy = -1;
+
 	int y = 2;
-	int cx = 2, cy = 2;
-	for (size_t i = 0; i < len; i++) {
-		char c = text_buffer[i];
-		if (c == '\n') {
-			x = 2;
+	for (Line line = find_line(0); valid_line(line); line = next_line(line)) {
+
+		// No need to draw the text above the area
+		if (y + 14 < area.top) {
 			y += 14;
+			continue;
 		}
 
-		if (c != '\n') {
+		int x = 2;
+		for (char *p = line.start; p != line.end; p++) {
+
+			if (text_buffer + cursor == p) {
+				cx = x;
+				cy = y;
+			}
+
+			char c = *p;
 			SIZE size;
 			char buf[2] = { c, 0 };
 			GetTextExtentPoint32A(dc, buf, 1, &size);
@@ -44,14 +88,21 @@ void paint_window(HWND window)
 			x += size.cx;
 		}
 
-		if (i + 1 == cursor) {
+		if (text_buffer + cursor == line.end) {
 			cx = x;
 			cy = y;
 		}
+
+		y += 14;
+
+		// No need to draw the text below the area
+		if (y > area.bottom)
+			break;
 	}
 
 	RECT cursor_rect = { cx, cy, cx + 4, cy + 14 };
-	FillRect(dc, &cursor_rect, cursor_brush);
+	if (cx >= 0)
+		FillRect(dc, &cursor_rect, cursor_brush);
 
 	EndPaint(window, &paint);
 
